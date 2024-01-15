@@ -284,7 +284,7 @@ def load_model():
 
     model_size = "base"
     try:
-        model = WhisperModel(model_size, device="cpu", compute_type="float16")
+        model = WhisperModel(model_size, device="cuda", compute_type="float16")
     except RuntimeError as e:
         model = WhisperModel(model_size)
         print("Error: ", e)
