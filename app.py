@@ -275,72 +275,72 @@ def show_audio_video(audiofilename, videofilename):
     st.video(videofilename)
 
 
-
+##############################
 
 
 @st.cache_resource
 def load_model():
-    print('Loading the Whisper Model into the App............')
+    print('음성인식 모델 로딩 중...')
 
     model_size = "base"
     try:
-        model = WhisperModel(model_size, device="cuda", compute_type="float16")
+        model = WhisperModel(model_size, device="cpu", compute_type="float16")
     except RuntimeError as e:
         model = WhisperModel(model_size)
         print("Error: ", e)
 
-    st.success("Loaded model!")
+    st.success("모델 선택 완료!")
     return model
 
 
 
 
 st.title('Autocaption by [Fictions.ai](https://fictions.ai)')
-st.write("[GitHub Repo](https://github.com/fictions-ai/autocaption) - [x.com/thibaudz](https://x.com/thibaudz)")
+# st.write("[GitHub Repo](https://github.com/fictions-ai/autocaption) - [x.com/thibaudz](https://x.com/thibaudz)")
 
 st.title('\n')
 
 if 'whisp_model' not in st.session_state:
-    print("Downloading dependecies...")
+    print("구성 요소 설치 중...")
 
     try:
         # install_img_magic_commands_linux()
-        print("Dependencise for video editing downloaded successfully.")
+        print("구성 요소 설치 완료")
         st.session_state.img_magik = True
     except Exception as e:
-        print('Some Errors ocurred while loading: ', e)
+        print('오류가 발생했습니다 : ', e)
 
     model = load_model()
     st.session_state.whisp_model = model
-    print('whisper Loaded.')
+    print('음성인식 모델 로딩 완료.')
 
-video_file = st.file_uploader("Choose a video file", type=["mp4", "avi", "mov"])
+video_file = st.file_uploader("자막을 넣을 동영상을 골라주세요", type=["mp4", "avi", "mov"])
 
 col1, col2 = st.columns(2)
 
 subs_position = st.selectbox(
-   "Select the subtitles position",
+   "자막 위치",
    ( "bottom75", "center" , "top", "bottom", "left", "right" ),
-   placeholder="Select subtitless position...",
+   placeholder="자막 위치 지정...",
 )
 
-color = st.text_input("Select the caption color", "white")
-v_type = st.radio("Select the Video ratio", ['9x16', "other aspect ratio"])
+color = st.text_input("자막 색깔", "white")
+v_type = st.radio("동영상 비율", ['9x16', "기타 비율"])
 
 # st.write(v_type)
 # if st.button('Advance Options'):
 with st.expander("More Options"):
 
-    highlight_color = st.text_input("Highlight Color", "yellow")
+    highlight_color = st.text_input("하일라이트 색생", "yellow")
     if v_type != "9x16":
-        fontsize = st.number_input("Fontsize (7.0 is ideal for videos)", min_value=1.0 , value=7.0)
-        MaxChars = st.number_input("Max Characters space for subtitles  (20 is ideal for videos, increasing this will increase the subtitles width)", min_value=1, value=20)
+        fontsize = st.number_input("글자 크기 (7.0이 적당합니다.)", min_value=1.0 , value=7.0)
+        MaxChars = st.number_input("최대 자간 (20이 적당합니다. 숫자가 클수록 자간이 벌어집니다.)", min_value=1, value=20)
 
     else:
-        fontsize = st.number_input("Fontsize (4.0 is ideal for reels)", min_value=1.0 , value=4.0)
-        MaxChars = st.number_input("Max Characters space for subtitles  (10 is ideal for reels, increasing this will increase the subtitles width)", min_value=1, value=10)
-    opacity = st.number_input("Opacity for the subtitles background (Set it to 0 for no background) Range: 0 - 1.0 ", min_value=0.0, value=0.0)
-button = st.button("Generate Video")
+        fontsize = st.number_input("글자 크기 (릴스용은 4.0이 적당합니다.)", min_value=1.0 , value=4.0)
+        MaxChars = st.number_input("최대 자간 (릴스용은 10이 적당합니다. 숫자가 클수록 자간이 벌어집니다.)", min_value=1, value=10)
+    opacity = st.number_input("자막 배경 투명도 (0 =  자막 배경 없음) Range: 0 - 1.0 ", min_value=0.0, value=0.0)
+button = st.button("동영상 만들기")
 try:
     if video_file is not None and button:
         video_url = None
@@ -387,13 +387,13 @@ try:
 
         try:
             if st.session_state.audio is None:
-                with st.spinner('Converting Audio.......'):
+                with st.spinner('오디오 추출 중...'):
                     audiofilename = create_audio(videofilename)
-                    st.success('Audio Created')
+                    st.success('오디오 추출 완료')
                     st.session_state.audio = audiofilename
 
             audiofilename = st.session_state.audio
-            with st.spinner('Editing Video.......'):
+            with st.spinner('동영상 편집 중...'):
                 if 'img_magik' in st.session_state:
                     try:
                         model = st.session_state.whisp_model
@@ -408,7 +408,7 @@ try:
 
                     except Exception as e:
                         outputfile = videofilename
-                        print('There is an erro:', e)
+                        print('오류가 발생했습니다 : ', e)
                         st.session_state.add_subtitles = False
 
                     st.session_state.add_subtitles = True
@@ -417,10 +417,10 @@ try:
                 st.session_state.outputfile_path = outputfile
                 st.success('Video Created')
         except Exception as e:
-            st.write('There is an error, please refresh the page or upload other video:', e)
+            st.write('오류가 발생했습니다. 페이지를 새로고침하거나 다른 동영상을 업로드하세요 :', e)
 
         if 'outputfile_path' in st.session_state and st.session_state.outputfile_path is not None:
             show_audio_video(st.session_state.audio, st.session_state.outputfile_path)
 
 except Exception as e:
-    print(e)
+    print("오류 발생 : ", e)
