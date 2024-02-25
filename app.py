@@ -334,8 +334,12 @@ v_type = st.radio("동영상 비율", ['9x16', "기타 비율"])
 # st.write(v_type)
 # if st.button('Advance Options'):
 with st.expander("More Options"):
-
-    highlight_color = st.text_input("하일라이트 색생", "yellow")
+    highlight_color = st.selectbox(
+       "하일라이트 색상",
+       ("white", "yellow", "red", "black", "green"),
+       placeholder="하일라이트 색상 지정...",
+    )
+    # highlight_color = st.text_input("하일라이트 색상", "yellow")
     if v_type != "9x16":
         fontsize = st.number_input("글자 크기 (7.0이 적당합니다.)", min_value=1.0 , value=7.0)
         MaxChars = st.number_input("최대 자간 (20이 적당합니다. 숫자가 클수록 자간이 벌어집니다.)", min_value=1, value=20)
