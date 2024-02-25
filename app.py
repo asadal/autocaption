@@ -323,8 +323,12 @@ subs_position = st.selectbox(
    ( "bottom75", "center" , "top", "bottom", "left", "right" ),
    placeholder="자막 위치 지정...",
 )
-
-color = st.text_input("자막 색깔", "white")
+subs_color = st.selectbox(
+    "자막 색깔",
+    ("white", "yellow", "red", "black", "green"),
+    placeholder="자막 색깔 지정..."
+)
+# color = st.text_input("자막 색깔", "white")
 v_type = st.radio("동영상 비율", ['9x16', "기타 비율"])
 
 # st.write(v_type)
