@@ -45,9 +45,10 @@ def transcribe_audio(whisper_model, audiofilename):
 
     for segment in segments:
 
-        for word in segment.words:
-            wordlevel_info.append({'word': word.word.upper(), 'start': word.start, 'end': word.end})
-
+        wordlevel_info.extend(
+            {'word': word.word.upper(), 'start': word.start, 'end': word.end}
+            for word in segment.words
+        )
     return wordlevel_info
 
 
@@ -137,7 +138,7 @@ def create_caption(textJSON, framesize, v_type,highlight_color, fontsize, color,
     space_width = 0
     space_height = 0
 
-    for index, wordJSON in enumerate(textJSON['textcontents']):
+    for wordJSON in textJSON['textcontents']:
         bold_font_path = "Poppins/Poppins-ExtraBold.ttf"
 
         duration = wordJSON['end'] - wordJSON['start']
@@ -192,9 +193,7 @@ def create_caption(textJSON, framesize, v_type,highlight_color, fontsize, color,
             word_clip_space = word_clip_space.set_position((x_pos + word_width, y_pos))
             x_pos = word_width + space_width
 
-        word_clips.append(word_clip)
-        word_clips.append(word_clip_space)
-
+        word_clips.extend((word_clip, word_clip_space))
     for highlight_word in xy_textclips_positions:
         word_clip_highlight = TextClip(highlight_word['word'], font=bold_font_path, fontsize=fontsize, color=highlight_color,
                                        stroke_color=stroke_color, stroke_width=stroke_width , kerning=-5).set_start(
@@ -254,7 +253,7 @@ def get_final_cliped_video(videofilename, linelevel_subtitles, v_type , subs_pos
 
 
 def add_subtitle(videofilename, audiofilename, v_type, subs_position, highlight_color, fontsize, opacity, MaxChars , color, wordlevel_info):
-    print("video type is: " + v_type)
+    print(f"video type is: {v_type}")
     print("Video and Audio filesare : ", videofilename, audiofilename)
 
 
@@ -267,8 +266,16 @@ def add_subtitle(videofilename, audiofilename, v_type, subs_position, highlight_
     for line in linelevel_subtitles:
         json_str = json.dumps(line, indent=4)
         print("whole json: ", json_str)
-    outputfile = get_final_cliped_video(videofilename, linelevel_subtitles, v_type, subs_position,highlight_color , fontsize, opacity , color)
-    return outputfile
+    return get_final_cliped_video(
+        videofilename,
+        linelevel_subtitles,
+        v_type,
+        subs_position,
+        highlight_color,
+        fontsize,
+        opacity,
+        color,
+    )
 
 
 def show_audio_video(audiofilename, videofilename):
